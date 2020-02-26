@@ -1,6 +1,6 @@
 library(lubridate)
 
-intervalo <- 30
+intervalo <- 2
 
 
 
@@ -51,16 +51,33 @@ for(i in 2:nrow(interpolada_p)){
   interpolada_p$p[i] <- interpolada_p$p_acum[i] - interpolada_p$p_acum[i-1]
 }
 
+
+
+# vazao acumulada
+evento$q_acum <- NA
+acumuladaq <- 0
+for(i in 1:nrow(evento)){
+  acumuladaq <- evento$vazao[i] + acumuladaq
+  evento$q_acum[i] <- acumuladaq
+}
+
+
 # interpolacao vazao
-interpolada_q <- approx(evento$data_q, evento$vazao, xout = v_tempo, yleft = evento$vazao[1])
-interpolada_q <-  as.data.frame(interpolada_q)
-colnames(interpolada_q) <- c("numerica","vazao")
+interpolada_q <- approx(evento$data_q, evento$q_acum, xout = v_tempo, yleft = 0)
+interpolada_q <- as.data.frame(interpolada_q)
+colnames(interpolada_q) <- c("numerica", "q_acum")
 interpolada_q$data <- as.POSIXct(interpolada_q$numerica, origin="1970-01-01 UTC", tzone = "GMT-3")
 
-vazao_maxima <- max(interpolada_q$vazao)
+#desacumula vazao
+interpolada_q$q <- NA
+interpolada_q$q[1] <- interpolada_q$q_acum[1]
+for(i in 2:nrow(interpolada_q)){
+  interpolada_q$q[i] <- interpolada_q$q_acum[i] - interpolada_q$q_acum[i-1]
+}
+
 
 # Saida
-saida <- data.frame(data = interpolada_p$data, precipitacao = interpolada_p$p, vazao = interpolada_q$vazao)
+saida <- data.frame(data = interpolada_p$data, precipitacao = interpolada_p$p, vazao = interpolada_q$q)
 #saida = data.frame(data = interpolada_p$data, 5)
 dire_saida <- paste0(diretorio, "/interpolado_30min_",lista_eventos[k])
   write.csv(saida, file = dire_saida)
