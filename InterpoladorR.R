@@ -1,6 +1,6 @@
 library(lubridate)
 
-intervalo <- 2
+intervalo <- 30
 
 
 
@@ -16,17 +16,11 @@ formato <- guess_formats(as.character(evento$data_p[1]), orders = "dmy HM")
 evento$data_p <- as.POSIXct(as.character(evento$data_p),format = formato[[2]], origin="1970-01-01 UTC", tzone = "GMT-3")
 evento$data_q <- as.POSIXct(as.character(evento$data_q),format = formato[[2]], origin="1970-01-01 UTC", tzone = "GMT-3")
   
-# transformar data em numero
-evento$numerica_p <- NA
-evento$numerica_q <- NA
-evento$numerica_p <- as.numeric(evento$data_p)
-evento$numerica_q <- as.numeric(evento$data_q)
-  
 #configuracao da serie
-data_inicial <- min(na.exclude(evento$numerica_p, evento$numerica_q))
+data_inicial <- min(na.exclude(evento$data_p, evento$data_q))
 data_inicial <- as.POSIXct(data_inicial, origin="1970-01-01 UTC", tzone = "GMT-3")
 
-data_final <- max(na.exclude(evento$numerica_p, evento$numerica_q))
+data_final <- max(na.exclude(evento$data_p, evento$data_q))
 data_final <- as.POSIXct(data_final, origin="1970-01-01 UTC", tzone = "GMT-3")
 
 # serie temporal
@@ -45,7 +39,7 @@ for(i in 1:nrow(evento)){
 
 # interpolacao precipitacao
 v_tempo <- as.vector(periodo$numerica) #periodo para interpolacao
-interpolada_p <- approx(evento$numerica_p, evento$p_acum, xout = v_tempo, yleft = 0)
+interpolada_p <- approx(evento$data_p, evento$p_acum, xout = v_tempo, yleft = 0)
 interpolada_p <- as.data.frame(interpolada_p)
 colnames(interpolada_p) <- c("numerica", "p_acum")
 interpolada_p$data <- as.POSIXct(interpolada_p$numerica, origin="1970-01-01 UTC", tzone = "GMT-3")
@@ -58,7 +52,7 @@ for(i in 2:nrow(interpolada_p)){
 }
 
 # interpolacao vazao
-interpolada_q <- approx(evento$numerica_q, evento$vazao, xout = v_tempo, yleft = evento$vazao[1])
+interpolada_q <- approx(evento$data_q, evento$vazao, xout = v_tempo, yleft = evento$vazao[1])
 interpolada_q <-  as.data.frame(interpolada_q)
 colnames(interpolada_q) <- c("numerica","vazao")
 interpolada_q$data <- as.POSIXct(interpolada_q$numerica, origin="1970-01-01 UTC", tzone = "GMT-3")
