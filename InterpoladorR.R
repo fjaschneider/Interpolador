@@ -9,7 +9,7 @@ list_eventos <- list.files(diretorio_entrada)
 intervalo <- 30 #Define o intervalo da interpolacao em minutos!
 
 
-for (k in 1:length(list_dir)) {
+for (k in 1:length(list_eventos)) {
   evento_arq <- paste0(diretorio, "/", list_eventos[k])
   evento <- read.csv(evento_arq)
   evento <- evento[ ,c(2,3,5,6)]
