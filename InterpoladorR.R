@@ -3,14 +3,14 @@
 library(lubridate)
 
 
-diretorio_entrada <- 'data/data_brut/'
-diretorio_saida <- 'data/data_30min/'
+diretorio_entrada <- 'data/brut_data_BST/'
+diretorio_saida <- 'data/data_30min_bst/'
 list_eventos <- list.files(diretorio_entrada)
 intervalo <- 30 #Define o intervalo da interpolacao em minutos!
 
 
 for (k in 1:length(list_eventos)) {
-  evento_arq <- paste0(diretorio, "/", list_eventos[k])
+  evento_arq <- paste0(diretorio_entrada, "/", list_eventos[k])
   evento <- read.csv(evento_arq)
   evento <- evento[ ,c(2,3,5,6)]
   colnames(evento) <- c("data_q", "vazao", "data_p", "prec")
